@@ -24,7 +24,7 @@ public class RunManager {
     private long mCurrentRunId;
     private LocationManager mLocationManager;
 
-    private RunManager(Context appContext){
+    public RunManager(Context appContext){
         mAppContext = appContext;
         mLocationManager = (LocationManager)mAppContext.getSystemService(Context.LOCATION_SERVICE);
 
@@ -107,5 +107,39 @@ public class RunManager {
         }else{
             Log.e(TAG, "location received with no tracking run; ignoring");
         }
+    }
+
+    public RunDatabaseHelper.RunCursor queryRuns(){
+        return mHelper.queryRuns();
+    }
+
+    public Run getRun(long id){
+        Run run = null;
+        RunDatabaseHelper.RunCursor cursor = mHelper.queryRun(id);
+        cursor.moveToFirst();
+        if(!cursor.isAfterLast()){
+            run= cursor.getRun();
+
+        }
+        cursor.close();
+        return run;
+    }
+
+
+    public boolean isTrackingRun(Run run){
+        return run !=null&&run.getId() == mCurrentRunId;
+    }
+
+    public Location getLastLocationForRun(long runId){
+        Location location = null;
+        RunDatabaseHelper.LocationCursor cursor = mHelper.queryLastLocationForRun(runId);
+        cursor.moveToFirst();
+        if(!cursor.isAfterLast())location = cursor.getLocation();
+        cursor.close();
+        return location;
+    }
+
+    public RunDatabaseHelper.LocationCursor queryLocationsForRun(long runId){
+        return mHelper.queryLocationsForRun(runId);
     }
 }
